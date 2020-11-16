@@ -6,6 +6,7 @@ export const App = () => (
   <ChakraProvider theme={theme}>
     <Flex alignItems="center" justifyContent="space-between" padding="1rem">
       <h1>My memories</h1>
+      <h1>A place to save your memories</h1>
       <ColorModeSwitcher justifySelf="flex-end" />
     </Flex>
   </ChakraProvider>
