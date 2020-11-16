@@ -27,6 +27,7 @@ blocks:
       jobs:
         - name: client tests
           commands:
+            - checkout
             - cache restore
             - npm test
   - name: Build
