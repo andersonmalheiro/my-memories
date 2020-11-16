@@ -1,0 +1,12 @@
+serviceWorker.ts
+*.test.tsx
+*.test.ts
+*.test.js
+*.test.jsx
+*.test.jsx
+*.spec.js
+*.spec.ts
+*.spec.tsx
+*.spec.jsx
+setupTests.ts
+reportWebVitals.ts
