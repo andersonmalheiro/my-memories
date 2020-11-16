@@ -1,0 +1,36 @@
+version: v1.0
+name: Test My memories
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Install dependencies
+    task:
+      jobs:
+        - name: install client dependencies
+          commands:
+            - cache restore
+            - npm install
+            - cache store
+  - name: Lint
+    task:
+      jobs:
+        - name: lint client
+          commands:
+            - cache restore
+            - npm run lint
+  - name: Tests
+    task:
+      jobs:
+        - name: client tests
+          commands:
+            - cache restore
+            - npm test
+  - name: Build
+    task:
+      jobs:
+        - name: build client
+          commands:
+            - cache restore
+            - npm run build --if-present
