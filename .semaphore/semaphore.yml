@@ -10,7 +10,7 @@ blocks:
       jobs:
         - name: install client dependencies
           commands:
-            - cd ..
+            - ls
             - cache restore
             - npm install
             - cache store
