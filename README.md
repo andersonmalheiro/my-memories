@@ -1,4 +1,4 @@
-[![Build Status](https://andersonmalheiro.semaphoreci.com/badges/my-memories/branches/main.svg)]
+![Build Status](https://andersonmalheiro.semaphoreci.com/badges/my-memories/branches/main.svg)
 
 This project was bootstrapped with
 [Create React App](https://github.com/facebook/create-react-app).
