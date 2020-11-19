@@ -1,2 +1,2 @@
-export * from './AppInput';
+export * from './Inputs';
 export * from './AppLayout';
