@@ -1,4 +1,5 @@
 import Axios from 'axios';
+import { handleError } from 'utils/error-handler';
 const API_URL = 'https://memory-app-back.herokuapp.com/';
 
 export const client = Axios.create({
@@ -8,3 +9,11 @@ export const client = Axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    handleError(error);
+    return Promise.reject(error);
+  }
+);
