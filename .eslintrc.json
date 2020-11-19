@@ -25,7 +25,10 @@
       }
     ],
     "semi": ["warn", "always"],
-    "no-unused-vars": ["warn"]
+    "no-unused-vars": ["warn", {
+      "args": "none"
+    }],
+    "react/prop-types": 0
   },
   "settings": {
     "react": {
