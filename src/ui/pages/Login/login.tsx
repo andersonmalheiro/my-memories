@@ -1,97 +1,101 @@
-import React, { useRef, useState } from 'react';
-import { Flex, Box, Button, Image } from '@chakra-ui/react';
-import { AppInput } from 'ui';
-import { Form } from '@unform/web';
-import { ValidationError, object, string } from 'yup';
+import React, { useState } from 'react';
 import styles from './login.module.scss';
+import { Flex, Button, Image } from '@chakra-ui/react';
+import { AppInput } from 'ui';
+import { object, string } from 'yup';
 import { ColorModeSwitcher } from 'ColorModeSwitcher';
+import { Formik, Form } from 'formik';
 import logo from 'assets/icons/memory.svg';
+import useAuth from 'context/auth';
+import { ILoginBody } from 'api';
+import { Redirect } from 'react-router-dom';
 
 export const Login = () => {
-  const formRef = useRef<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [invalid, setInvalid] = useState(false);
+  const { authenticate, isAuthenticated, loading } = useAuth();
 
-  async function handleSubmit(data: any) {
-    setLoading(true);
+  const schema = object().shape({
+    username: string()
+      .min(3, 'Must be 3 characters or more')
+      .required('Field required'),
+    password: string()
+      .min(3, 'Must be 3 characters or more')
+      .required('Field required'),
+  });
+
+  const initialValues: ILoginBody = {
+    username: '',
+    password: '',
+  };
+
+  const handleSubmit = (data: ILoginBody) => {
+    authenticate(data);
+  };
+
+  const validateForm = async (data: ILoginBody) => {
     try {
-      // Remove all previous errors
-      formRef.current.setErrors({});
-      const schema = object().shape({
-        user: string().min(3).required(),
-        password: string().min(6).required(),
-      });
-
-      await schema.validate(data, {
-        abortEarly: false,
-      });
-      // Validation passed
-      setTimeout(() => {
-        console.log(data);
-        setLoading(false);
-      }, 1000);
-    } catch (err) {
-      setLoading(false);
-      const validationErrors: { [key: string]: string } = {};
-      if (err instanceof ValidationError) {
-        err.inner.forEach((error) => {
-          validationErrors[error.path] = error.message;
-        });
-
-        formRef.current.setErrors(validationErrors);
-      }
+      await schema.validate(data);
+      setInvalid(false);
+    } catch (error) {
+      setInvalid(true);
     }
+  };
+
+
+  if (isAuthenticated) {
+    return <Redirect to="/memories" />;
   }
 
   return (
-    <Box className={styles.container}>
+    <div className={styles.container}>
       <ColorModeSwitcher className={styles.colorSwitcher} />
-      <Flex
-        alignItems={'center'}
-        justifyContent={'center'}
-        direction={'column'}
-        borderWidth="1px"
-        borderRadius="lg"
-        padding="1rem"
-        boxShadow="md"
-      >
+      <div className={styles.formBox}>
         <Image src={logo} boxSize="80px" marginBottom={'3'} />
-        <Form onSubmit={handleSubmit} ref={formRef}>
-          <AppInput
-            type="text"
-            label={'User'}
-            placeholder={'Your user name'}
-            isRequired
-            required
-            name={'user'}
-            id={'user'}
-          />
-          <AppInput
-            type="password"
-            label={'Password'}
-            placeholder={'Your password'}
-            isRequired
-            required
-            name={'password'}
-            id={'password'}
-            maxLength={32}
-          />
+        <Formik
+          initialValues={initialValues}
+          validationSchema={schema}
+          validate={validateForm}
+          onSubmit={handleSubmit}
+        >
+          <Form className={styles.form}>
+            <AppInput
+              type="text"
+              label={'User'}
+              placeholder={'Your user name'}
+              required
+              minLength={3}
+              name={'username'}
+              id={'username'}
+            />
+            <AppInput
+              type="password"
+              label={'Password'}
+              placeholder={'Your password'}
+              required
+              name={'password'}
+              id={'password'}
+              minLength={3}
+              maxLength={32}
+            />
 
-          <Flex direction="column" marginTop="6">
-            <Button
-              colorScheme="blue"
-              isFullWidth
-              marginBottom="3"
-              type="submit"
-              isLoading={loading}
-            >
-              Login
-            </Button>
-            <Button colorScheme="blue" variant="outline" isFullWidth>
-              Register
-            </Button>
-          </Flex>
-        </Form>
-      </Flex>
-    </Box>
+            <Flex direction="column" marginTop="6">
+              <Button
+                colorScheme="blue"
+                isFullWidth
+                marginBottom="3"
+                type="submit"
+                isLoading={loading}
+                isDisabled={invalid}
+              >
+                Login
+              </Button>
+              <Button colorScheme="blue" variant="outline" isFullWidth>
+                Register
+              </Button>
+            </Flex>
+          </Form>
+        </Formik>
+      </div>
+    </div>
   );
 };

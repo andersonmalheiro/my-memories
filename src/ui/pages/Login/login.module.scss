@@ -11,3 +11,19 @@
   right: 20px;
   top: 20px;
 }
+
+.formBox {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  min-width: 350px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
