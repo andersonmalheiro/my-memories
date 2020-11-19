@@ -7,54 +7,33 @@ import React, {
 } from 'react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
 import { handleError } from 'utils/error-handler';
-import { client } from '../api';
+import { client, login, check, ILoginBody } from '../api';
 
 export interface AuthContextProps {
-  user: UserData | null;
+  user: ILoginBody | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (data: LoginData) => void;
+  authenticate: (data: ILoginBody) => void;
+  checkToken: () => void;
   logout: () => void;
-  check: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
 
-export interface UserData {
-  auth_id: number;
-  cliente_novo_revan: boolean;
-  documento: string;
-  email: string;
-  hash_key: string;
-  id: number;
-  nome: string;
-  resetar_senha: boolean;
-  telefone: number;
-  telefone2: number;
-  token: string;
-  upload_termos: boolean;
-}
-
-export interface LoginData {
-  documento: string;
-  senha: string;
-}
-
 export const AuthProvider: React.FC = ({ children }) => {
-  const [user, setUser] = useState<UserData | null>(null);
+  const [user, setUser] = useState<ILoginBody | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const login = async (data: LoginData) => {
+  const authenticate = async (data: ILoginBody) => {
     try {
       setLoading(true);
-      const response = await client.post('auth/login', data);
+      const response = await login(data);
 
-      if (response.data) {
-        const { data } = response;
-        client.defaults.headers.token = data.token;
+      if (response) {
+        client.defaults.headers.Authorization = `Bearer ${response.token}`;
         setLoading(false);
-        setUser(data);
-        localStorage.setItem('_auth', JSON.stringify(data));
+        setUser(response as any);
+        localStorage.setItem('_auth', JSON.stringify(response));
       }
     } catch (error) {
       setLoading(false);
@@ -67,12 +46,12 @@ export const AuthProvider: React.FC = ({ children }) => {
     setUser(null);
   };
 
-  const check = useCallback(async () => {
+  const checkToken = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await client.get('/auth/check');
+      const response = await check();
 
-      if (response.status === 200) {
+      if (response) {
         setLoading(false);
         return;
       }
@@ -89,7 +68,7 @@ export const AuthProvider: React.FC = ({ children }) => {
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
-        client.defaults.headers.token = parsedUser.token;
+        client.defaults.headers.Authorization = `Bearer ${parsedUser.token}`;
       }
       setLoading(false);
     };
@@ -99,7 +78,14 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated: !!user, user, login, loading, logout, check }}
+      value={{
+        isAuthenticated: !!user,
+        user,
+        authenticate,
+        loading,
+        logout,
+        checkToken,
+      }}
     >
       {children}
     </AuthContext.Provider>
